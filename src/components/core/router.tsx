@@ -61,7 +61,8 @@ export function Router() {
       
       // Give AuthProvider time to process the SIGNED_IN event
       // This ensures the state is synchronized before rendering
-      await new Promise(resolve => setTimeout(resolve, 300))
+      // Increased delay from 300ms to 800ms to ensure proper state synchronization
+      await new Promise(resolve => setTimeout(resolve, 800))
       
       console.log('[Router] Auth state after delay - isAuthenticated:', isAuthenticated, 'userRole:', userRole)
       navigate('/enen')

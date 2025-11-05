@@ -103,17 +103,17 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 py-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#030213] py-8">
       <div className="w-full max-w-md px-6 space-y-6">
-        <Card className="shadow-lg border-0">
+        <Card className="bg-[#12141A] border-[#1F2937] shadow-lg">
           <CardHeader className="space-y-1 pb-8">
             <div className="flex justify-center mb-4">
-              <div className="p-3 bg-primary/10 rounded-full">
-                <Shield className="h-8 w-8 text-primary" />
+              <div className="p-3 bg-[#FFC107]/10 rounded-full">
+                <Shield className="h-8 w-8 text-[#FFC107]" />
               </div>
             </div>
-            <CardTitle className="text-2xl text-center">管理員登入</CardTitle>
-            <CardDescription className="text-center text-muted-foreground">
+            <CardTitle className="text-2xl text-center text-white">管理員登入</CardTitle>
+            <CardDescription className="text-center text-[#9EA3AE]">
               僅限授權的管理員和客服人員使用
             </CardDescription>
           </CardHeader>
@@ -121,16 +121,16 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="admin-email">電子郵件</Label>
+                <Label htmlFor="admin-email" className="text-white">電子郵件</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-[#9EA3AE]" />
                   <Input
                     id="admin-email"
                     type="email"
                     placeholder="請輸入管理員郵箱"
                     value={formData.email}
                     onChange={handleInputChange('email')}
-                    className="pl-10"
+                    className="pl-10 bg-[#1F2937] border-[#374151] text-white placeholder:text-[#6B7280]"
                     required
                     autoComplete="email"
                   />
@@ -138,23 +138,23 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="admin-password">密碼</Label>
+                <Label htmlFor="admin-password" className="text-white">密碼</Label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-[#9EA3AE]" />
                   <Input
                     id="admin-password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="請輸入密碼"
                     value={formData.password}
                     onChange={handleInputChange('password')}
-                    className="pl-10 pr-10"
+                    className="pl-10 pr-10 bg-[#1F2937] border-[#374151] text-white placeholder:text-[#6B7280]"
                     required
                     autoComplete="current-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground"
+                    className="absolute right-3 top-3 h-4 w-4 text-[#9EA3AE] hover:text-white"
                   >
                     {showPassword ? <EyeOff /> : <Eye />}
                   </button>
@@ -162,15 +162,15 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
               </div>
 
               {error && (
-                <Alert variant="destructive">
+                <Alert variant="destructive" className="bg-[#371B26] border-[#7F1D1D]">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription className="text-white">{error}</AlertDescription>
                 </Alert>
               )}
 
               <Button 
                 type="submit" 
-                className="w-full" 
+                className="w-full bg-[#FFC107] hover:bg-[#FFD700] text-[#0B0C10] font-bold"
                 disabled={isLoading}
                 size="lg"
               >
@@ -186,7 +186,7 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
             </form>
 
             <div className="mt-6 text-center">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-[#9EA3AE]">
                 此登入頁面專為系統管理員和客服人員設計
                 <br />
                 如需一般用戶登入，請返回主頁面

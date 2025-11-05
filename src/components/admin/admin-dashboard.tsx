@@ -248,18 +248,25 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
   const loadCMSData = async () => {
     try {
-      const { access_token, error: sessionError } = await authHelpers.getSession()
+      // Add explicit loading state update
+      setIsLoading(true)
+      console.log('[AdminDashboard] Starting CMS data load...')
       
-      if (sessionError || !access_token) {
-        console.error('Session error during CMS data load:', sessionError)
-        toast.error('會話已過期，請重新登入')
+      const { session, error: sessionError } = await authHelpers.getSession()
+      
+      if (sessionError || !session?.access_token) {
+        console.error('[AdminDashboard] Session error:', sessionError)
+        toast.error('會話驗證失敗，請重新登入')
+        setIsLoading(false)
         return
       }
+      
+      console.log('[AdminDashboard] Session validated, fetching CMS data...')
       
       const baseUrl = `https://${projectId}.supabase.co/functions/v1/make-server-04b375d8/cms`
       
       const headers = {
-        'Authorization': `Bearer ${access_token}`,
+        'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json'
       }
 
@@ -269,6 +276,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       }
 
       // Load all CMS data in parallel with timeout
+      console.log('[AdminDashboard] Fetching all CMS endpoints in parallel...')
       const [regionsRes, platformsRes, displayTagsRes, gamesRes, denominationsRes] = await Promise.all([
         fetch(`${baseUrl}/regions`, fetchOptions),
         fetch(`${baseUrl}/platforms`, fetchOptions),
@@ -277,40 +285,83 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
         fetch(`${baseUrl}/denominations`, fetchOptions)
       ])
 
+      // Process responses with error handling
+      let successCount = 0
+      let failCount = 0
+
       if (regionsRes.ok) {
         const data = await regionsRes.json()
         setRegions(data.regions || [])
+        console.log('[AdminDashboard] ✓ Regions loaded:', data.regions?.length || 0)
+        successCount++
+      } else {
+        console.error('[AdminDashboard] ✗ Failed to load regions:', regionsRes.status)
+        failCount++
       }
 
       if (platformsRes.ok) {
         const data = await platformsRes.json()
         setPlatforms(data.platforms || [])
+        console.log('[AdminDashboard] ✓ Platforms loaded:', data.platforms?.length || 0)
+        successCount++
+      } else {
+        console.error('[AdminDashboard] ✗ Failed to load platforms:', platformsRes.status)
+        failCount++
       }
 
       if (displayTagsRes.ok) {
         const data = await displayTagsRes.json()
         setDisplayTags(data.displayTags || [])
+        console.log('[AdminDashboard] ✓ Display tags loaded:', data.displayTags?.length || 0)
+        successCount++
+      } else {
+        console.error('[AdminDashboard] ✗ Failed to load display tags:', displayTagsRes.status)
+        failCount++
       }
 
       if (gamesRes.ok) {
         const data = await gamesRes.json()
         setGames(data.games || [])
+        console.log('[AdminDashboard] ✓ Games loaded:', data.games?.length || 0)
+        successCount++
+      } else {
+        console.error('[AdminDashboard] ✗ Failed to load games:', gamesRes.status)
+        failCount++
       }
 
       if (denominationsRes.ok) {
         const data = await denominationsRes.json()
         setDenominations(data.denominations || [])
+        console.log('[AdminDashboard] ✓ Denominations loaded:', data.denominations?.length || 0)
+        successCount++
+      } else {
+        console.error('[AdminDashboard] ✗ Failed to load denominations:', denominationsRes.status)
+        failCount++
+      }
+
+      console.log(`[AdminDashboard] CMS data load complete: ${successCount} succeeded, ${failCount} failed`)
+      
+      // Show appropriate notification
+      if (failCount > 0 && successCount > 0) {
+        toast.warning(`部分資料載入失敗 (${failCount}/${successCount + failCount})`)
+      } else if (failCount > 0) {
+        toast.error('載入 CMS 資料失敗，請刷新頁面重試')
+      } else {
+        console.log('[AdminDashboard] ✓ All CMS data loaded successfully')
       }
 
     } catch (error) {
-      console.error('Failed to load CMS data:', error)
+      console.error('[AdminDashboard] ❌ Failed to load CMS data:', error)
       if (error instanceof Error && error.name === 'TimeoutError') {
         toast.error('載入資料超時，請檢查網路連線')
       } else if (error instanceof Error && error.name === 'AbortError') {
         toast.error('載入資料已取消')
       } else {
-        toast.error('載入 CMS 資料失敗')
+        toast.error('加載數據失敗，請刷新頁面重試')
       }
+    } finally {
+      setIsLoading(false)
+      console.log('[AdminDashboard] Loading state cleared')
     }
   }
 
