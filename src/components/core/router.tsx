@@ -58,7 +58,7 @@ export function Router() {
     // Check user role and redirect accordingly
     if (role === 'admin' || role === 'cs') {
       console.log('Redirecting to admin dashboard')
-      navigate('/admin-dashboard')
+      navigate('/enen')
     } else {
       console.log('User does not have admin/cs role, redirecting to home')
       // Regular user redirected to home
@@ -74,20 +74,13 @@ export function Router() {
 
   // Route matching with Suspense for lazy loading
   const renderRoute = () => {
-    // Admin routes - Protected
-    if (currentPath === '/admin-login') {
-      return (
-        <Suspense fallback={<PageLoadingFallback />}>
-          <AdminLoginPage onLoginSuccess={handleAdminLoginSuccess} />
-        </Suspense>
-      )
-    }
-
-    if (currentPath === '/admin-dashboard') {
+    // Admin routes - Protected (using /enen path)
+    if (currentPath === '/enen') {
+      console.log('[Router] /enen route - isAuthenticated:', isAuthenticated, 'userRole:', userRole)
+      
       // Check if user is authenticated and has admin/cs role
       if (!isAuthenticated) {
-        console.log('Not authenticated, redirecting to admin login')
-        navigate('/admin-login')
+        console.log('[Router] Not authenticated, showing admin login')
         return (
           <Suspense fallback={<PageLoadingFallback />}>
             <AdminLoginPage onLoginSuccess={handleAdminLoginSuccess} />
@@ -96,15 +89,16 @@ export function Router() {
       }
 
       if (userRole !== 'admin' && userRole !== 'cs') {
-        console.log('User does not have admin/cs role, redirecting to home')
+        console.log('[Router] User does not have admin/cs role, redirecting to home')
         navigate('/')
         return (
           <Suspense fallback={<PageLoadingFallback />}>
-            <MainApp onNavigateToAdmin={() => navigate('/admin-login')} />
+            <MainApp onNavigateToAdmin={() => navigate('/enen')} />
           </Suspense>
         )
       }
 
+      console.log('[Router] Rendering AdminDashboard for role:', userRole)
       return (
         <Suspense fallback={<PageLoadingFallback />}>
           <AdminDashboard onLogout={handleLogout} />
@@ -166,7 +160,7 @@ export function Router() {
     // Default: Home page
     return (
       <Suspense fallback={<PageLoadingFallback />}>
-        <MainApp onNavigateToAdmin={() => navigate('/admin-login')} />
+        <MainApp onNavigateToAdmin={() => navigate('/enen')} />
       </Suspense>
     )
   }

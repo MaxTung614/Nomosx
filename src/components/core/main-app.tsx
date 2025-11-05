@@ -416,31 +416,68 @@ export function MainApp({ onNavigateToAdmin }: MainAppProps) {
               <p style={{ color: '#9EA3AE' }}>精選最受歡迎的遊戲，快速充值體驗</p>
             </motion.div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {hotGames.map((game, index) => (
-                <motion.div
-                  key={game.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -8, scale: 1.02 }}
-                  className="group cursor-pointer"
-                  onClick={() => setShowProducts(true)}
-                >
+            {/* Loading State */}
+            {gamesLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
                   <Card 
-                    className="overflow-hidden border-0 transition-all duration-300"
+                    key={i}
+                    className="overflow-hidden border-0 animate-pulse"
                     style={{ 
                       backgroundColor: '#12141A',
                       boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
                     }}
                   >
-                    <div className="relative overflow-hidden">
-                      <ImageWithFallback
-                        src={game.cover}
-                        alt={game.name}
-                        className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
+                    <div className="w-full h-48 bg-gray-700"></div>
+                    <div className="p-5 space-y-3">
+                      <div className="h-6 bg-gray-700 rounded w-3/4"></div>
+                      <div className="h-4 bg-gray-700 rounded w-1/2"></div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : hotGames.length === 0 ? (
+              // Empty State
+              <div className="text-center py-16">
+                <div className="mb-4 flex justify-center">
+                  <div className="p-6 rounded-full" style={{ backgroundColor: 'rgba(255, 193, 7, 0.1)' }}>
+                    <Star className="w-12 h-12" style={{ color: '#FFC107' }} />
+                  </div>
+                </div>
+                <h3 className="text-xl mb-2" style={{ color: '#EAEAEA', fontWeight: 600 }}>
+                  暫無遊戲資料
+                </h3>
+                <p style={{ color: '#9EA3AE' }}>
+                  管理員尚未新增任何遊戲，請稍後再試
+                </p>
+              </div>
+            ) : (
+              // Games Grid
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {hotGames.map((game, index) => (
+                  <motion.div
+                    key={game.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ y: -8, scale: 1.02 }}
+                    className="group cursor-pointer"
+                    onClick={() => setShowProducts(true)}
+                  >
+                    <Card 
+                      className="overflow-hidden border-0 transition-all duration-300"
+                      style={{ 
+                        backgroundColor: '#12141A',
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+                      }}
+                    >
+                      <div className="relative overflow-hidden">
+                        <ImageWithFallback
+                          src={game.coverUrl}
+                          alt={game.name}
+                          className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
                       
                       {/* Overlay gradient */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -502,12 +539,13 @@ export function MainApp({ onNavigateToAdmin }: MainAppProps) {
                         >
                           立即購買
                         </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
         </section>
 

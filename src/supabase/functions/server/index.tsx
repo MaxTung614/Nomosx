@@ -659,7 +659,6 @@ app.get("/make-server-04b375d8/cms/regions", requireAdmin, async (c) => {
     const { data: regions, error } = await supabaseAdmin
       .from('regions')
       .select('*')
-      .eq('is_archived', false)
       .order('created_at', { ascending: false });
     
     if (error) {
@@ -687,8 +686,7 @@ app.post("/make-server-04b375d8/cms/regions", requireAdmin, async (c) => {
       .from('regions')
       .insert({
         region_code,
-        region_name,
-        is_archived: false
+        region_name
       })
       .select()
       .single();
@@ -741,17 +739,18 @@ app.delete("/make-server-04b375d8/cms/regions/:id", requireAdmin, async (c) => {
   try {
     const id = c.req.param('id');
 
+    // Soft delete: Simply delete the region (or mark as deleted if needed)
     const { error } = await supabaseAdmin
       .from('regions')
-      .update({ is_archived: true })
+      .delete()
       .eq('id', id);
     
     if (error) {
-      console.error('Archive region error:', error);
-      return c.json({ error: "Failed to archive region" }, 500);
+      console.error('Delete region error:', error);
+      return c.json({ error: "Failed to delete region" }, 500);
     }
     
-    return c.json({ success: true, message: "Region archived successfully" });
+    return c.json({ success: true, message: "Region deleted successfully" });
   } catch (error) {
     console.error('Archive region error:', error);
     return c.json({ error: "Failed to archive region" }, 500);
@@ -764,8 +763,7 @@ app.get("/make-server-04b375d8/cms/platforms", requireAdmin, async (c) => {
     const { data: platforms, error } = await supabaseAdmin
       .from('platforms')
       .select('*')
-      .eq('is_archived', false)
-      .order('created_at', { ascending: false });
+      .order('platform_name', { ascending: true });
     
     if (error) {
       console.error('Get platforms error:', error);
@@ -792,8 +790,7 @@ app.post("/make-server-04b375d8/cms/platforms", requireAdmin, async (c) => {
       .from('platforms')
       .insert({
         platform_code,
-        platform_name,
-        is_archived: false
+        platform_name
       })
       .select()
       .single();
@@ -848,15 +845,15 @@ app.delete("/make-server-04b375d8/cms/platforms/:id", requireAdmin, async (c) =>
 
     const { error } = await supabaseAdmin
       .from('platforms')
-      .update({ is_archived: true })
+      .delete()
       .eq('id', id);
     
     if (error) {
-      console.error('Archive platform error:', error);
-      return c.json({ error: "Failed to archive platform" }, 500);
+      console.error('Delete platform error:', error);
+      return c.json({ error: "Failed to delete platform" }, 500);
     }
     
-    return c.json({ success: true, message: "Platform archived successfully" });
+    return c.json({ success: true, message: "Platform deleted successfully" });
   } catch (error) {
     console.error('Archive platform error:', error);
     return c.json({ error: "Failed to archive platform" }, 500);
@@ -869,7 +866,6 @@ app.get("/make-server-04b375d8/cms/display-tags", requireAdmin, async (c) => {
     const { data: displayTags, error } = await supabaseAdmin
       .from('display_tags')
       .select('*')
-      .eq('is_archived', false)
       .order('created_at', { ascending: false });
     
     if (error) {
@@ -897,8 +893,7 @@ app.post("/make-server-04b375d8/cms/display-tags", requireAdmin, async (c) => {
       .from('display_tags')
       .insert({
         tag_name,
-        tag_color: tag_color || '#000000',
-        is_archived: false
+        tag_color: tag_color || '#000000'
       })
       .select()
       .single();
@@ -953,15 +948,15 @@ app.delete("/make-server-04b375d8/cms/display-tags/:id", requireAdmin, async (c)
 
     const { error } = await supabaseAdmin
       .from('display_tags')
-      .update({ is_archived: true })
+      .delete()
       .eq('id', id);
     
     if (error) {
-      console.error('Archive display tag error:', error);
-      return c.json({ error: "Failed to archive display tag" }, 500);
+      console.error('Delete display tag error:', error);
+      return c.json({ error: "Failed to delete display tag" }, 500);
     }
     
-    return c.json({ success: true, message: "Display tag archived successfully" });
+    return c.json({ success: true, message: "Display tag deleted successfully" });
   } catch (error) {
     console.error('Archive display tag error:', error);
     return c.json({ error: "Failed to archive display tag" }, 500);
@@ -978,7 +973,6 @@ app.get("/make-server-04b375d8/cms/games", requireAdmin, async (c) => {
     const { data: games, error } = await supabaseAdmin
       .from('games')
       .select('*')
-      .eq('is_archived', false)
       .order('created_at', { ascending: false });
     
     if (error) {
@@ -1009,8 +1003,7 @@ app.post("/make-server-04b375d8/cms/games", requireAdmin, async (c) => {
         regions,
         platform,
         display_tag,
-        image_url,
-        is_archived: false
+        image_url
       })
       .select()
       .single();
@@ -1068,15 +1061,15 @@ app.delete("/make-server-04b375d8/cms/games/:id", requireAdmin, async (c) => {
 
     const { error } = await supabaseAdmin
       .from('games')
-      .update({ is_archived: true })
+      .delete()
       .eq('id', id);
     
     if (error) {
-      console.error('Archive game error:', error);
-      return c.json({ error: "Failed to archive game" }, 500);
+      console.error('Delete game error:', error);
+      return c.json({ error: "Failed to delete game" }, 500);
     }
     
-    return c.json({ success: true, message: "Game archived successfully" });
+    return c.json({ success: true, message: "Game deleted successfully" });
   } catch (error) {
     console.error('Archive game error:', error);
     return c.json({ error: "Failed to archive game" }, 500);
@@ -1089,7 +1082,6 @@ app.get("/make-server-04b375d8/cms/denominations", requireAdmin, async (c) => {
     const { data: denominations, error } = await supabaseAdmin
       .from('denominations')
       .select('*')
-      .eq('is_archived', false)
       .order('created_at', { ascending: false });
     
     if (error) {
@@ -1118,11 +1110,10 @@ app.post("/make-server-04b375d8/cms/denominations", requireAdmin, async (c) => {
       .insert({
         game_id,
         sku_code,
-        name,
+        denomination_name: name,  // Use denomination_name in database
         display_price,
         region_code,
-        paypal_amount: paypal_amount || null,
-        is_archived: false
+        paypal_amount: paypal_amount || null
       })
       .select()
       .single();
@@ -1154,7 +1145,7 @@ app.put("/make-server-04b375d8/cms/denominations/:id", requireAdmin, async (c) =
       .update({
         game_id,
         sku_code,
-        name,
+        denomination_name: name,  // Use denomination_name in database
         display_price,
         region_code,
         paypal_amount: paypal_amount || null
@@ -1181,15 +1172,15 @@ app.delete("/make-server-04b375d8/cms/denominations/:id", requireAdmin, async (c
 
     const { error } = await supabaseAdmin
       .from('denominations')
-      .update({ is_archived: true })
+      .delete()
       .eq('id', id);
     
     if (error) {
-      console.error('Archive denomination error:', error);
-      return c.json({ error: "Failed to archive denomination" }, 500);
+      console.error('Delete denomination error:', error);
+      return c.json({ error: "Failed to delete denomination" }, 500);
     }
     
-    return c.json({ success: true, message: "Denomination archived successfully" });
+    return c.json({ success: true, message: "Denomination deleted successfully" });
   } catch (error) {
     console.error('Archive denomination error:', error);
     return c.json({ error: "Failed to archive denomination" }, 500);
@@ -1203,11 +1194,10 @@ app.delete("/make-server-04b375d8/cms/denominations/:id", requireAdmin, async (c
 // Public API: Get products for customer-facing product page
 app.get("/make-server-04b375d8/products", async (c) => {
   try {
-    // Fetch all active games with their regions
+    // Fetch all games with their regions
     const { data: games, error: gamesError } = await supabaseAdmin
       .from('games')
       .select('*')
-      .eq('is_archived', false)
       .order('created_at', { ascending: false });
 
     if (gamesError) {
@@ -1215,11 +1205,10 @@ app.get("/make-server-04b375d8/products", async (c) => {
       return c.json({ error: "Failed to fetch games" }, 500);
     }
 
-    // Fetch all active denominations
+    // Fetch all denominations
     const { data: denominations, error: denominationsError } = await supabaseAdmin
       .from('denominations')
-      .select('*')
-      .eq('is_archived', false);
+      .select('*');
 
     if (denominationsError) {
       console.error('Fetch denominations error:', denominationsError);
@@ -1229,8 +1218,7 @@ app.get("/make-server-04b375d8/products", async (c) => {
     // Fetch all regions
     const { data: regions, error: regionsError } = await supabaseAdmin
       .from('regions')
-      .select('*')
-      .eq('is_archived', false);
+      .select('*');
 
     if (regionsError) {
       console.error('Fetch regions error:', regionsError);
@@ -1391,7 +1379,7 @@ app.get("/make-server-04b375d8/orders/:orderId", async (c) => {
       .from('orders')
       .select(`
         *,
-        denominations(name, display_price, game_id, sku_code)
+        denominations(denomination_name, display_price, game_id, sku_code)
       `)
       .eq('id', orderId)
       .single();
@@ -1513,8 +1501,7 @@ app.get("/make-server-04b375d8/admin/orders", requireAdminOrCS, async (c) => {
       .from('orders')
       .select(`
         *,
-        denominations(name, display_price, game_id, sku_code),
-        fulfilled_by_user:fulfilled_by(email, raw_user_meta_data)
+        denominations(denomination_name, display_price, game_id, sku_code)
       `, { count: 'exact' });
 
     if (status) query = query.eq('status', status);
@@ -1528,6 +1515,28 @@ app.get("/make-server-04b375d8/admin/orders", requireAdminOrCS, async (c) => {
     if (error) {
       console.error('Get orders error:', error);
       return c.json({ error: "Failed to fetch orders" }, 500);
+    }
+    
+    // Fetch fulfilled_by user info separately if needed
+    if (orders && orders.length > 0) {
+      const fulfilledOrders = orders.filter(order => order.fulfilled_by);
+      if (fulfilledOrders.length > 0) {
+        const userIds = [...new Set(fulfilledOrders.map(order => order.fulfilled_by))];
+        const { data: users } = await supabaseAdmin.auth.admin.listUsers();
+        
+        if (users) {
+          const userMap = new Map(users.users.map(user => [user.id, user]));
+          orders.forEach(order => {
+            if (order.fulfilled_by && userMap.has(order.fulfilled_by)) {
+              const user = userMap.get(order.fulfilled_by);
+              order.fulfilled_by_user = {
+                email: user.email,
+                raw_user_meta_data: user.user_metadata
+              };
+            }
+          });
+        }
+      }
     }
 
     return c.json({
@@ -1555,8 +1564,7 @@ app.get("/make-server-04b375d8/admin/orders/:orderId", requireAdminOrCS, async (
       .from('orders')
       .select(`
         *,
-        denominations(name, display_price, game_id, sku_code),
-        fulfilled_by_user:fulfilled_by(email, raw_user_meta_data)
+        denominations(denomination_name, display_price, game_id, sku_code)
       `)
       .eq('id', orderId)
       .single();
@@ -1564,6 +1572,17 @@ app.get("/make-server-04b375d8/admin/orders/:orderId", requireAdminOrCS, async (
     if (error || !order) {
       console.error('Order fetch error:', error);
       return c.json({ error: "Order not found" }, 404);
+    }
+    
+    // Fetch fulfilled_by user info separately if needed
+    if (order.fulfilled_by) {
+      const { data: userData } = await supabaseAdmin.auth.admin.getUserById(order.fulfilled_by);
+      if (userData?.user) {
+        order.fulfilled_by_user = {
+          email: userData.user.email,
+          raw_user_meta_data: userData.user.user_metadata
+        };
+      }
     }
 
     return c.json({ order });
@@ -1769,7 +1788,7 @@ app.post("/make-server-04b375d8/payments/paypal/create", async (c) => {
       .from('orders')
       .select(`
         *,
-        denominations(name, display_price, paypal_amount)
+        denominations(denomination_name, display_price, paypal_amount)
       `)
       .eq('id', order_id)
       .single();

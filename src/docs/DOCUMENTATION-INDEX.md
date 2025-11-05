@@ -42,13 +42,19 @@
 │   └── ecpay-placeholder.md          # ECPay 計劃
 │
 ├── admin/                             # 👑 管理後台
+│   ├── ADMIN-PATH-UPDATE.md         # ⚠️ 路徑變更通知（重要）
+│   ├── PATH-CHANGE-VERIFICATION.md  # ✅ 路徑變更驗證指南
+│   ├── admin-access-guide.md        # 🔑 管理員面板訪問指南
+│   ├── quick-setup-admin.md         # ⚡ 快速創建管理員賬號
 │   ├── admin-ux-improvements.md      # UX 優化報告
-│   └── admin-search-sort-export.md   # 搜索排序導出
+│   ├── admin-search-sort-export.md   # 搜索排序導出
+│   └── admin-role-fix-guide.md       # Admin 角色修復指南
 │
 ├── security/                          # 🔐 安全指南
 │   └── rls-implementation.md         # RLS 實施 (phase-3-rls-implementation.md)
 │
 ├── changelogs/                        # 📝 變更日誌
+│   ├── 2025-11-05-admin-path-change.md # 2025-11-05 管理員路徑變更
 │   ├── 2025-10-22-fixes.md          # 2025-10-22 修復
 │   ├── 2025-10-22-documentation.md   # 2025-10-22 文檔化完成
 │   └── 2025-10-22-cleanup.md         # 2025-10-22 項目清理
@@ -68,6 +74,8 @@
 | 需求 | 查看文檔 | 預計時間 |
 |------|---------|---------|-|
 | 快速啟動項目 | [quick-start.md](./getting-started/quick-start.md) | 30 分鐘 |
+| **進入管理員面板** | [admin-access-guide.md](./admin/admin-access-guide.md) | **5 分鐘** |
+| **創建管理員賬號** | [quick-setup-admin.md](./admin/quick-setup-admin.md) | **10 分鐘** |
 | 了解項目架構 | [project-overview.md](./getting-started/project-overview.md) | 15 分鐘 |
 | 清理項目文件 | [CLEANUP-SUMMARY.md](./CLEANUP-SUMMARY.md) | 5 分鐘 |
 | 配置環境變量 | [environment-variables.md](./setup/environment-variables.md) | 10 分鐘 |
@@ -89,8 +97,9 @@
 ### 🆕 新開發者
 1. [項目概覽](./getting-started/project-overview.md) - 了解整體架構
 2. [快速啟動](./getting-started/quick-start.md) - 30 分鐘上手
-3. [環境配置](./setup/environment-setup.md) - 配置開發環境
-4. [Auth 測試](./testing/auth-testing-guide.md) - 驗證功能
+3. **[創建管理員](./admin/quick-setup-admin.md) - 獲取後台訪問權限** ⭐
+4. [環境配置](./setup/environment-setup.md) - 配置開發環境
+5. [Auth 測試](./testing/auth-testing-guide.md) - 驗證功能
 
 ### 🧪 QA/測試人員
 1. [Admin 測試清單](./testing/admin-testing-checklist.md) - 完整測試流程
@@ -197,6 +206,15 @@
 
 ---
 
-**最後更新**: 2025-10-22  
-**文檔版本**: 3.0  
+**最後更新**: 2025-11-05  
+**文檔版本**: 3.2  
 **維護**: 開發團隊
+
+---
+
+## ⚠️ 重要通知
+
+**管理員面板路徑已變更** (2025-11-05)
+- 舊路徑: `/admin-login` → ❌ 已廢棄
+- 新路徑: `/enen` → ✅ 請使用此路徑
+- 詳情: [ADMIN-PATH-UPDATE.md](./admin/ADMIN-PATH-UPDATE.md)

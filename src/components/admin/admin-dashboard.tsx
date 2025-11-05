@@ -25,6 +25,7 @@ import {
 import { useIsMobile } from '../ui/use-mobile'
 import { UserRoleDisplay } from './user-role-display'
 import { HomepageGamesManager } from './homepage-games-manager'
+import { useAuth } from '../auth/auth-provider'
 import { authHelpers, type AuthUser } from '../../utils/supabase/client'
 import { projectId, publicAnonKey } from '../../utils/supabase/info'
 import { toast } from 'sonner@2.0.3'
@@ -140,9 +141,8 @@ interface Order {
 
 export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const isMobile = useIsMobile()
+  const { user, userRole, isAuthenticated } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [user, setUser] = useState<AuthUser | null>(null)
-  const [userRole, setUserRole] = useState<string>('user')
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('orders')
 
@@ -204,29 +204,32 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [homepageGamesSortBy, setHomepageGamesSortBy] = useState<string>('order')
   const [homepageGamesSortOrder, setHomepageGamesSortOrder] = useState<'asc' | 'desc'>('asc')
 
+  // Load CMS data when component mounts and user is admin
   useEffect(() => {
-    const loadUserData = async () => {
-      try {
-        const { user: currentUser } = await authHelpers.getUser()
-        if (currentUser) {
-          const role = await authHelpers.checkUserRole()
-          setUser(currentUser as AuthUser)
-          setUserRole(role)
-          
-          if (role === 'admin') {
-            await loadCMSData()
-          }
+    const loadInitialData = async () => {
+      console.log('[AdminDashboard] Starting initialization...', 'userRole:', userRole, 'isAuthenticated:', isAuthenticated)
+      
+      if (userRole === 'admin' && isAuthenticated) {
+        console.log('[AdminDashboard] Loading CMS data for admin...')
+        try {
+          await loadCMSData()
+          console.log('[AdminDashboard] CMS data loaded successfully')
+        } catch (error) {
+          console.error('[AdminDashboard] Failed to load CMS data:', error)
+          toast.error('載入資料失敗')
         }
-      } catch (error) {
-        console.error('Failed to load user data:', error)
-        toast.error('載入用戶資料失敗')
-      } finally {
-        setIsLoading(false)
+      } else {
+        console.log('[AdminDashboard] Skipping CMS data load - role:', userRole)
       }
+      
+      setIsLoading(false)
     }
 
-    loadUserData()
-  }, [])
+    // Only load when we have auth info
+    if (userRole) {
+      loadInitialData()
+    }
+  }, []) // Only run once on mount - userRole should be available from Router's auth check
 
   // Auto-load orders when switching to orders tab
   useEffect(() => {
@@ -1247,49 +1250,12 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
     )
   }
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p className="text-muted-foreground">載入中...</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Show access denied for non-admin users
-  if (userRole !== 'admin') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="p-3 bg-red-100 rounded-full w-fit mx-auto mb-4">
-              <Shield className="h-8 w-8 text-red-600" />
-            </div>
-            <CardTitle className="text-red-600">存取被拒絕</CardTitle>
-            <CardDescription>
-              您沒有權限存取管理員面板。僅限系統管理員使用。
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center text-sm text-muted-foreground">
-              <p>您的角色：<Badge variant="outline">{getRoleLabel(userRole)}</Badge></p>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => window.location.href = '/'} className="flex-1">
-                返回首頁
-              </Button>
-              <Button onClick={handleLogout} className="flex-1">
-                登出
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
-
+  console.log('[AdminDashboard] Render - isLoading:', isLoading, 'userRole:', userRole, 'user:', user?.email)
+  
+  // Show loading only for CMS data, not for the entire dashboard
+  // Router already handles auth checks, so we can show the dashboard immediately
+  console.log('[AdminDashboard] Rendering main dashboard')
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       {/* Header */}
@@ -1407,6 +1373,16 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-4 md:py-8">
+        {/* Loading Overlay for CMS Data */}
+        {isLoading && (
+          <Alert className="mb-4 md:mb-6">
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+              <AlertDescription>正在載入管理數據...</AlertDescription>
+            </div>
+          </Alert>
+        )}
+        
         {/* Role Display Component */}
         <div className="mb-4 md:mb-6">
           <UserRoleDisplay showDetails={true} showRefresh={true} />
