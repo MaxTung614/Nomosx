@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { motion } from 'motion/react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -7,7 +8,7 @@ import { Textarea } from '../ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Badge } from '../ui/badge'
 import { toast } from 'sonner@2.0.3'
-import { ArrowLeft, ArrowRight, ShoppingCart, GamepadIcon, CreditCard } from 'lucide-react'
+import { ArrowLeft, ArrowRight, ShoppingCart, GamepadIcon, CreditCard, Sparkles, Check } from 'lucide-react'
 import { projectId, publicAnonKey } from '../../utils/supabase/info'
 
 interface Game {
@@ -218,107 +219,190 @@ export function ProductPage({ onNavigateBack, onNavigateToPayment }: ProductPage
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0B0C10' }}>
         <div className="text-center">
-          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p>載入產品資料中...</p>
+          <motion.div 
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            className="w-12 h-12 border-4 rounded-full mx-auto mb-4"
+            style={{ borderColor: '#FFC107', borderTopColor: 'transparent' }}
+          ></motion.div>
+          <p style={{ color: '#9EA3AE' }}>載入產品資料中...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: '#0B0C10' }}>
       {/* Header with step indicator */}
-      <div className="bg-white shadow-sm border-b">
+      <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="shadow-sm border-b"
+        style={{ 
+          backgroundColor: 'rgba(18, 20, 26, 0.95)',
+          borderColor: '#1F2937',
+          backdropFilter: 'blur(10px)'
+        }}
+      >
         <div className="max-w-md mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <Button 
               variant="ghost" 
               size="sm"
               onClick={currentStep === 1 ? onNavigateBack : () => setCurrentStep(currentStep - 1 as 1 | 2)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 transition-all duration-300"
+              style={{ color: '#9EA3AE' }}
             >
               <ArrowLeft className="w-4 h-4" />
               {currentStep === 1 ? '返回' : '上一步'}
             </Button>
-            <h1 className="font-medium">遊戲點數購買</h1>
+            <h1 className="flex items-center gap-2" style={{ color: '#EAEAEA' }}>
+              <Sparkles className="w-5 h-5" style={{ color: '#FFC107' }} />
+              遊戲點數購買
+            </h1>
             <div className="w-12"></div> {/* Spacer for centering */}
           </div>
           
           {/* Step indicator */}
           <div className="flex items-center justify-center space-x-2">
-            <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm ${
-              currentStep >= 1 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
-            }`}>
-              1
-            </div>
-            <div className={`h-1 w-8 ${currentStep >= 2 ? 'bg-primary' : 'bg-gray-200'}`}></div>
-            <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm ${
-              currentStep >= 2 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
-            }`}>
-              2
-            </div>
-            <div className={`h-1 w-8 ${currentStep >= 3 ? 'bg-primary' : 'bg-gray-200'}`}></div>
-            <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm ${
-              currentStep >= 3 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-600'
-            }`}>
+            <motion.div 
+              className={`flex items-center justify-center w-8 h-8 rounded-full text-sm transition-all duration-300`}
+              style={{
+                backgroundColor: currentStep >= 1 ? '#FFC107' : '#1F2937',
+                color: currentStep >= 1 ? '#0B0C10' : '#9EA3AE',
+                boxShadow: currentStep >= 1 ? '0 0 15px rgba(255, 193, 7, 0.5)' : 'none'
+              }}
+              animate={{ scale: currentStep === 1 ? [1, 1.1, 1] : 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              {currentStep > 1 ? <Check className="w-4 h-4" /> : '1'}
+            </motion.div>
+            <motion.div 
+              className="h-1 w-8 rounded-full transition-all duration-500"
+              style={{ backgroundColor: currentStep >= 2 ? '#FFC107' : '#1F2937' }}
+            ></motion.div>
+            <motion.div 
+              className={`flex items-center justify-center w-8 h-8 rounded-full text-sm transition-all duration-300`}
+              style={{
+                backgroundColor: currentStep >= 2 ? '#FFC107' : '#1F2937',
+                color: currentStep >= 2 ? '#0B0C10' : '#9EA3AE',
+                boxShadow: currentStep >= 2 ? '0 0 15px rgba(255, 193, 7, 0.5)' : 'none'
+              }}
+              animate={{ scale: currentStep === 2 ? [1, 1.1, 1] : 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              {currentStep > 2 ? <Check className="w-4 h-4" /> : '2'}
+            </motion.div>
+            <motion.div 
+              className="h-1 w-8 rounded-full transition-all duration-500"
+              style={{ backgroundColor: currentStep >= 3 ? '#FFC107' : '#1F2937' }}
+            ></motion.div>
+            <motion.div 
+              className={`flex items-center justify-center w-8 h-8 rounded-full text-sm transition-all duration-300`}
+              style={{
+                backgroundColor: currentStep >= 3 ? '#FFC107' : '#1F2937',
+                color: currentStep >= 3 ? '#0B0C10' : '#9EA3AE',
+                boxShadow: currentStep >= 3 ? '0 0 15px rgba(255, 193, 7, 0.5)' : 'none'
+              }}
+              animate={{ scale: currentStep === 3 ? [1, 1.1, 1] : 1 }}
+              transition={{ duration: 0.3 }}
+            >
               3
-            </div>
+            </motion.div>
           </div>
           
           {/* Step labels */}
-          <div className="flex justify-between mt-2 text-xs text-gray-600">
+          <div className="flex justify-between mt-2 text-xs" style={{ color: '#9EA3AE' }}>
             <span>選擇產品</span>
             <span>帳號資訊</span>
             <span>確認支付</span>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main content */}
       <div className="max-w-md mx-auto px-4 py-6">
         
         {/* Step 1: Product Selection */}
         {currentStep === 1 && (
-          <div className="space-y-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
             <div className="text-center">
-              <GamepadIcon className="w-12 h-12 text-primary mx-auto mb-2" />
-              <h2>選擇遊戲和面額</h2>
-              <p className="text-sm text-gray-600">請選擇您要購買的遊戲和點數面額</p>
+              <motion.div
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="inline-block mb-3"
+              >
+                <div className="p-4 rounded-xl" style={{ backgroundColor: 'rgba(255, 193, 7, 0.1)', border: '1px solid #FFC107' }}>
+                  <GamepadIcon className="w-12 h-12" style={{ color: '#FFC107' }} />
+                </div>
+              </motion.div>
+              <h2 className="text-2xl mb-2" style={{ color: '#EAEAEA' }}>選擇遊戲和面額</h2>
+              <p className="text-sm" style={{ color: '#9EA3AE' }}>請選擇您要購買的遊戲和點數面額</p>
             </div>
 
             {/* Game selection */}
-            <Card>
+            <Card 
+              className="border-0"
+              style={{ 
+                backgroundColor: '#12141A',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+              }}
+            >
               <CardHeader>
-                <CardTitle className="text-lg">選擇遊戲</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2" style={{ color: '#EAEAEA' }}>
+                  <div className="w-1 h-6 rounded-full" style={{ backgroundColor: '#FFC107' }}></div>
+                  選擇遊戲
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-3">
                   {games.map((game) => (
-                    <div
+                    <motion.div
                       key={game.id}
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        selectedGame?.id === game.id
-                          ? 'border-primary bg-primary/5'
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
+                      whileHover={{ scale: 1.02, x: 5 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={`p-4 border rounded-lg cursor-pointer transition-all duration-300`}
+                      style={{
+                        backgroundColor: selectedGame?.id === game.id ? 'rgba(255, 193, 7, 0.1)' : 'transparent',
+                        borderColor: selectedGame?.id === game.id ? '#FFC107' : '#1F2937',
+                        boxShadow: selectedGame?.id === game.id ? '0 0 20px rgba(255, 193, 7, 0.2)' : 'none'
+                      }}
                       onClick={() => handleGameSelect(game)}
                     >
                       <div className="flex justify-between items-start">
                         <div>
-                          <h3 className="font-medium">{game.name}</h3>
+                          <h3 className="mb-1" style={{ color: '#EAEAEA' }}>{game.name}</h3>
                           {game.description && (
-                            <p className="text-sm text-gray-600 mt-1">{game.description}</p>
+                            <p className="text-sm mt-1" style={{ color: '#9EA3AE' }}>{game.description}</p>
                           )}
                           {game.region && (
-                            <Badge variant="outline" className="mt-2 text-xs">
+                            <Badge 
+                              variant="outline" 
+                              className="mt-2 text-xs"
+                              style={{ borderColor: '#00E0FF', color: '#00E0FF' }}
+                            >
                               {game.region.name}
                             </Badge>
                           )}
                         </div>
+                        {selectedGame?.id === game.id && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="p-1 rounded-full"
+                            style={{ backgroundColor: '#FFC107' }}
+                          >
+                            <Check className="w-4 h-4" style={{ color: '#0B0C10' }} />
+                          </motion.div>
+                        )}
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               </CardContent>
@@ -326,145 +410,242 @@ export function ProductPage({ onNavigateBack, onNavigateToPayment }: ProductPage
 
             {/* Denomination selection */}
             {selectedGame && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">選擇面額</CardTitle>
-                  <CardDescription>為 {selectedGame.name} 選擇點數面額</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-3">
-                    {getGameDenominations().map((denomination) => (
-                      <div
-                        key={denomination.id}
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                          selectedDenomination?.id === denomination.id
-                            ? 'border-primary bg-primary/5'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                        onClick={() => handleDenominationSelect(denomination)}
-                      >
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <h3 className="font-medium">{denomination.name}</h3>
-                            {denomination.description && (
-                              <p className="text-sm text-gray-600">{denomination.description}</p>
-                            )}
-                            <div className="flex items-center gap-2 mt-2">
-                              {denomination.platform && (
-                                <Badge variant="secondary" className="text-xs">
-                                  {denomination.platform.name}
-                                </Badge>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <Card
+                  className="border-0"
+                  style={{ 
+                    backgroundColor: '#12141A',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+                  }}
+                >
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2" style={{ color: '#EAEAEA' }}>
+                      <div className="w-1 h-6 rounded-full" style={{ backgroundColor: '#00E0FF' }}></div>
+                      選擇面額
+                    </CardTitle>
+                    <CardDescription style={{ color: '#9EA3AE' }}>
+                      為 {selectedGame.name} 選擇點數面額
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-3">
+                      {getGameDenominations().map((denomination) => (
+                        <motion.div
+                          key={denomination.id}
+                          whileHover={{ scale: 1.02, x: 5 }}
+                          whileTap={{ scale: 0.98 }}
+                          className={`p-4 border rounded-lg cursor-pointer transition-all duration-300`}
+                          style={{
+                            backgroundColor: selectedDenomination?.id === denomination.id ? 'rgba(0, 224, 255, 0.1)' : 'transparent',
+                            borderColor: selectedDenomination?.id === denomination.id ? '#00E0FF' : '#1F2937',
+                            boxShadow: selectedDenomination?.id === denomination.id ? '0 0 20px rgba(0, 224, 255, 0.2)' : 'none'
+                          }}
+                          onClick={() => handleDenominationSelect(denomination)}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h3 className="mb-1" style={{ color: '#EAEAEA' }}>{denomination.name}</h3>
+                              {denomination.description && (
+                                <p className="text-sm" style={{ color: '#9EA3AE' }}>{denomination.description}</p>
                               )}
-                              {denomination.displayTag && (
-                                <Badge 
-                                  variant="outline" 
-                                  className="text-xs"
-                                  style={{ 
-                                    borderColor: denomination.displayTag.color,
-                                    color: denomination.displayTag.color 
-                                  }}
+                              <div className="flex items-center gap-2 mt-2">
+                                {denomination.platform && (
+                                  <Badge 
+                                    variant="secondary" 
+                                    className="text-xs"
+                                    style={{ backgroundColor: 'rgba(158, 163, 174, 0.2)', color: '#9EA3AE' }}
+                                  >
+                                    {denomination.platform.name}
+                                  </Badge>
+                                )}
+                                {denomination.displayTag && (
+                                  <Badge 
+                                    variant="outline" 
+                                    className="text-xs"
+                                    style={{ 
+                                      borderColor: denomination.displayTag.color,
+                                      color: denomination.displayTag.color 
+                                    }}
+                                  >
+                                    {denomination.displayTag.name}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right flex items-center gap-3">
+                              <div className="text-xl" style={{ color: '#FFC107', fontWeight: 600 }}>
+                                ${denomination.display_price}
+                              </div>
+                              {selectedDenomination?.id === denomination.id && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  className="p-1 rounded-full"
+                                  style={{ backgroundColor: '#00E0FF' }}
                                 >
-                                  {denomination.displayTag.name}
-                                </Badge>
+                                  <Check className="w-4 h-4" style={{ color: '#0B0C10' }} />
+                                </motion.div>
                               )}
                             </div>
                           </div>
-                          <div className="text-right">
-                            <div className="font-medium text-primary">
-                              ${denomination.display_price}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             )}
 
             {/* Continue button */}
             {selectedGame && selectedDenomination && (
-              <Button 
-                className="w-full" 
-                onClick={proceedToStep2}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
               >
-                繼續下一步
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
+                <Button 
+                  className="w-full py-6 transition-all duration-300"
+                  onClick={proceedToStep2}
+                  style={{
+                    backgroundColor: '#FFC107',
+                    color: '#0B0C10',
+                    boxShadow: '0 0 30px rgba(255, 193, 7, 0.3)'
+                  }}
+                >
+                  繼續下一步
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
         )}
 
         {/* Step 2: Account Information */}
         {currentStep === 2 && (
-          <div className="space-y-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
             <div className="text-center">
-              <ShoppingCart className="w-12 h-12 text-primary mx-auto mb-2" />
-              <h2>輸入遊戲帳號</h2>
-              <p className="text-sm text-gray-600">請輸入您的遊戲帳號登入資訊</p>
+              <motion.div
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="inline-block mb-3"
+              >
+                <div className="p-4 rounded-xl" style={{ backgroundColor: 'rgba(0, 224, 255, 0.1)', border: '1px solid #00E0FF' }}>
+                  <ShoppingCart className="w-12 h-12" style={{ color: '#00E0FF' }} />
+                </div>
+              </motion.div>
+              <h2 className="text-2xl mb-2" style={{ color: '#EAEAEA' }}>輸入遊戲帳號</h2>
+              <p className="text-sm" style={{ color: '#9EA3AE' }}>請輸入您的遊戲帳號登入資訊</p>
             </div>
 
             {/* Selected product summary */}
-            <Card>
+            <Card
+              className="border-0"
+              style={{ 
+                backgroundColor: '#12141A',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
+                border: '1px solid rgba(255, 193, 7, 0.2)'
+              }}
+            >
               <CardHeader>
-                <CardTitle className="text-lg">已選擇的產品</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2" style={{ color: '#EAEAEA' }}>
+                  <Sparkles className="w-5 h-5" style={{ color: '#FFC107' }} />
+                  已選擇的產品
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">遊戲：</span>
-                    <span>{selectedGame?.name}</span>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-2 rounded" style={{ backgroundColor: 'rgba(255, 193, 7, 0.05)' }}>
+                    <span style={{ color: '#9EA3AE' }}>遊戲：</span>
+                    <span style={{ color: '#EAEAEA' }}>{selectedGame?.name}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">面額：</span>
-                    <span>{selectedDenomination?.name}</span>
+                  <div className="flex justify-between items-center p-2 rounded" style={{ backgroundColor: 'rgba(0, 224, 255, 0.05)' }}>
+                    <span style={{ color: '#9EA3AE' }}>面額：</span>
+                    <span style={{ color: '#EAEAEA' }}>{selectedDenomination?.name}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">價格：</span>
-                    <span className="font-medium text-primary">${selectedDenomination?.display_price}</span>
+                  <div className="flex justify-between items-center p-2 rounded" style={{ backgroundColor: 'rgba(255, 193, 7, 0.1)' }}>
+                    <span style={{ color: '#9EA3AE' }}>價格：</span>
+                    <span className="text-xl" style={{ color: '#FFC107', fontWeight: 600 }}>${selectedDenomination?.display_price}</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* Account credentials form */}
-            <Card>
+            <Card
+              className="border-0"
+              style={{ 
+                backgroundColor: '#12141A',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+              }}
+            >
               <CardHeader>
-                <CardTitle className="text-lg">遊戲帳號資訊</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2" style={{ color: '#EAEAEA' }}>
+                  <div className="w-1 h-6 rounded-full" style={{ backgroundColor: '#00E0FF' }}></div>
+                  遊戲帳號資訊
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="username">遊戲帳號</Label>
+                  <Label htmlFor="username" style={{ color: '#EAEAEA' }}>遊戲帳號</Label>
                   <Input
                     id="username"
                     type="text"
                     placeholder="請輸入遊戲帳號"
                     value={formData.game_login_username}
                     onChange={(e) => setFormData(prev => ({ ...prev, game_login_username: e.target.value }))}
+                    className="mt-2 border-0"
+                    style={{ 
+                      backgroundColor: 'rgba(31, 41, 55, 0.5)',
+                      color: '#EAEAEA',
+                      borderColor: '#1F2937'
+                    }}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="password">遊戲密碼</Label>
+                  <Label htmlFor="password" style={{ color: '#EAEAEA' }}>遊戲密碼</Label>
                   <Input
                     id="password"
                     type="password"
                     placeholder="請輸入遊戲密碼"
                     value={formData.game_login_password}
                     onChange={(e) => setFormData(prev => ({ ...prev, game_login_password: e.target.value }))}
+                    className="mt-2 border-0"
+                    style={{ 
+                      backgroundColor: 'rgba(31, 41, 55, 0.5)',
+                      color: '#EAEAEA',
+                      borderColor: '#1F2937'
+                    }}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="quantity">購買數量</Label>
+                  <Label htmlFor="quantity" style={{ color: '#EAEAEA' }}>購買數量</Label>
                   <Select 
                     value={formData.quantity.toString()} 
                     onValueChange={(value) => setFormData(prev => ({ ...prev, quantity: parseInt(value) }))}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger
+                      className="mt-2 border-0"
+                      style={{ 
+                        backgroundColor: 'rgba(31, 41, 55, 0.5)',
+                        color: '#EAEAEA',
+                        borderColor: '#1F2937'
+                      }}
+                    >
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent style={{ backgroundColor: '#12141A', borderColor: '#1F2937' }}>
                       {[1, 2, 3, 4, 5, 10].map(num => (
-                        <SelectItem key={num} value={num.toString()}>
+                        <SelectItem 
+                          key={num} 
+                          value={num.toString()}
+                          style={{ color: '#EAEAEA' }}
+                        >
                           {num} 個
                         </SelectItem>
                       ))}
@@ -475,52 +656,91 @@ export function ProductPage({ onNavigateBack, onNavigateToPayment }: ProductPage
             </Card>
 
             <Button 
-              className="w-full" 
+              className="w-full py-6 transition-all duration-300" 
               onClick={proceedToStep3}
               disabled={!formData.game_login_username || !formData.game_login_password}
+              style={{
+                backgroundColor: !formData.game_login_username || !formData.game_login_password ? '#1F2937' : '#00E0FF',
+                color: !formData.game_login_username || !formData.game_login_password ? '#9EA3AE' : '#0B0C10',
+                boxShadow: !formData.game_login_username || !formData.game_login_password ? 'none' : '0 0 30px rgba(0, 224, 255, 0.3)'
+              }}
             >
               繼續下一步
-              <ArrowRight className="w-4 h-4 ml-2" />
+              <ArrowRight className="w-5 h-5 ml-2" />
             </Button>
-          </div>
+          </motion.div>
         )}
 
         {/* Step 3: Payment Information */}
         {currentStep === 3 && (
-          <div className="space-y-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
             <div className="text-center">
-              <CreditCard className="w-12 h-12 text-primary mx-auto mb-2" />
-              <h2>確認訂單</h2>
-              <p className="text-sm text-gray-600">請填寫聯絡資訊並確認訂單</p>
+              <motion.div
+                animate={{ rotateY: [0, 360] }}
+                transition={{ duration: 3, repeat: Infinity }}
+                className="inline-block mb-3"
+              >
+                <div className="p-4 rounded-xl" style={{ backgroundColor: 'rgba(255, 193, 7, 0.1)', border: '1px solid #FFC107' }}>
+                  <CreditCard className="w-12 h-12" style={{ color: '#FFC107' }} />
+                </div>
+              </motion.div>
+              <h2 className="text-2xl mb-2" style={{ color: '#EAEAEA' }}>確認訂單</h2>
+              <p className="text-sm" style={{ color: '#9EA3AE' }}>請填寫聯絡資訊並確認訂單</p>
             </div>
 
             {/* Order summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">訂單摘要</CardTitle>
+            <Card
+              className="border-0 relative overflow-hidden"
+              style={{ 
+                backgroundColor: '#12141A',
+                boxShadow: '0 4px 30px rgba(255, 193, 7, 0.2)',
+                border: '1px solid rgba(255, 193, 7, 0.3)'
+              }}
+            >
+              {/* Glow effect */}
+              <div className="absolute inset-0 opacity-30" style={{ 
+                background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(0, 224, 255, 0.1) 100%)'
+              }}></div>
+              
+              <CardHeader className="relative">
+                <CardTitle className="text-lg flex items-center gap-2" style={{ color: '#EAEAEA' }}>
+                  <Sparkles className="w-5 h-5" style={{ color: '#FFC107' }} />
+                  訂單摘要
+                </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="relative">
                 <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">遊戲：</span>
-                    <span>{selectedGame?.name}</span>
+                  <div className="flex justify-between items-center p-3 rounded" style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)' }}>
+                    <span style={{ color: '#9EA3AE' }}>遊戲：</span>
+                    <span style={{ color: '#EAEAEA' }}>{selectedGame?.name}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">面額：</span>
-                    <span>{selectedDenomination?.name}</span>
+                  <div className="flex justify-between items-center p-3 rounded" style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)' }}>
+                    <span style={{ color: '#9EA3AE' }}>面額：</span>
+                    <span style={{ color: '#EAEAEA' }}>{selectedDenomination?.name}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">帳號：</span>
-                    <span>{formData.game_login_username}</span>
+                  <div className="flex justify-between items-center p-3 rounded" style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)' }}>
+                    <span style={{ color: '#9EA3AE' }}>帳號：</span>
+                    <span style={{ color: '#EAEAEA' }}>{formData.game_login_username}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">數量：</span>
-                    <span>{formData.quantity} 個</span>
+                  <div className="flex justify-between items-center p-3 rounded" style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)' }}>
+                    <span style={{ color: '#9EA3AE' }}>數量：</span>
+                    <span style={{ color: '#EAEAEA' }}>{formData.quantity} 個</span>
                   </div>
-                  <div className="border-t pt-3">
-                    <div className="flex justify-between font-medium text-lg">
-                      <span>總計：</span>
-                      <span className="text-primary">${getTotalPrice()}</span>
+                  <div className="border-t pt-4 mt-4" style={{ borderColor: '#1F2937' }}>
+                    <div className="flex justify-between items-center p-4 rounded-lg" style={{ backgroundColor: 'rgba(255, 193, 7, 0.1)' }}>
+                      <span className="text-xl" style={{ color: '#EAEAEA', fontWeight: 600 }}>總計：</span>
+                      <motion.span 
+                        className="text-3xl"
+                        style={{ color: '#FFC107', fontWeight: 700 }}
+                        animate={{ scale: [1, 1.05, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      >
+                        ${getTotalPrice()}
+                      </motion.span>
                     </div>
                   </div>
                 </div>
@@ -528,52 +748,101 @@ export function ProductPage({ onNavigateBack, onNavigateToPayment }: ProductPage
             </Card>
 
             {/* Customer information */}
-            <Card>
+            <Card
+              className="border-0"
+              style={{ 
+                backgroundColor: '#12141A',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+              }}
+            >
               <CardHeader>
-                <CardTitle className="text-lg">聯絡資訊</CardTitle>
+                <CardTitle className="text-lg flex items-center gap-2" style={{ color: '#EAEAEA' }}>
+                  <div className="w-1 h-6 rounded-full" style={{ backgroundColor: '#00E0FF' }}></div>
+                  聯絡資訊
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="email">客戶信箱 *</Label>
+                  <Label htmlFor="email" style={{ color: '#EAEAEA' }}>客戶信箱 *</Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="your@email.com"
                     value={formData.customer_email}
                     onChange={(e) => setFormData(prev => ({ ...prev, customer_email: e.target.value }))}
+                    className="mt-2 border-0"
+                    style={{ 
+                      backgroundColor: 'rgba(31, 41, 55, 0.5)',
+                      color: '#EAEAEA',
+                      borderColor: '#1F2937'
+                    }}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone">聯絡電話（選填）</Label>
+                  <Label htmlFor="phone" style={{ color: '#EAEAEA' }}>聯絡電話（選填）</Label>
                   <Input
                     id="phone"
                     type="tel"
                     placeholder="+886 912345678"
                     value={formData.customer_phone}
                     onChange={(e) => setFormData(prev => ({ ...prev, customer_phone: e.target.value }))}
+                    className="mt-2 border-0"
+                    style={{ 
+                      backgroundColor: 'rgba(31, 41, 55, 0.5)',
+                      color: '#EAEAEA',
+                      borderColor: '#1F2937'
+                    }}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="notes">備註（選填）</Label>
+                  <Label htmlFor="notes" style={{ color: '#EAEAEA' }}>備註（選填）</Label>
                   <Textarea
                     id="notes"
                     placeholder="如有特殊需求請在此說明"
                     value={formData.notes}
                     onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                     rows={3}
+                    className="mt-2 border-0"
+                    style={{ 
+                      backgroundColor: 'rgba(31, 41, 55, 0.5)',
+                      color: '#EAEAEA',
+                      borderColor: '#1F2937'
+                    }}
                   />
                 </div>
               </CardContent>
             </Card>
 
-            <Button 
-              className="w-full" 
-              onClick={submitOrder}
-              disabled={submitting || !formData.customer_email}
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              {submitting ? '提交中...' : `確認訂單並支付 $${getTotalPrice()}`}
-            </Button>
-          </div>
+              <Button 
+                className="w-full py-6 text-lg transition-all duration-300" 
+                onClick={submitOrder}
+                disabled={submitting || !formData.customer_email}
+                style={{
+                  backgroundColor: submitting || !formData.customer_email ? '#1F2937' : '#FFC107',
+                  color: submitting || !formData.customer_email ? '#9EA3AE' : '#0B0C10',
+                  boxShadow: submitting || !formData.customer_email ? 'none' : '0 0 40px rgba(255, 193, 7, 0.5)',
+                  fontWeight: 700
+                }}
+              >
+                {submitting ? (
+                  <span className="flex items-center gap-2">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      className="w-5 h-5 border-2 border-current border-t-transparent rounded-full"
+                    ></motion.div>
+                    處理中...
+                  </span>
+                ) : (
+                  `確認訂單並支付 $${getTotalPrice()}`
+                )}
+              </Button>
+            </motion.div>
+          </motion.div>
         )}
       </div>
     </div>

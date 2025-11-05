@@ -27,6 +27,7 @@ import { UserRoleDisplay } from './user-role-display'
 import { HomepageGamesManager } from './homepage-games-manager'
 import { useAuth } from '../auth/auth-provider'
 import { authHelpers, type AuthUser } from '../../utils/supabase/client'
+import { AuthDebugPanel } from '../utils/auth-debug-panel'
 import { projectId, publicAnonKey } from '../../utils/supabase/info'
 import { toast } from 'sonner@2.0.3'
 import { 
@@ -2735,6 +2736,9 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
           </DialogContent>
         </Dialog>
       </main>
+      
+      {/* Auth Debug Panel */}
+      <AuthDebugPanel />
     </div>
   )
 }

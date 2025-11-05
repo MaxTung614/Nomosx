@@ -7,6 +7,7 @@ import { Alert, AlertDescription } from '../ui/alert'
 import { authHelpers } from '../../utils/supabase/client'
 import { Mail, Lock, Shield, AlertCircle, Eye, EyeOff } from 'lucide-react'
 import { SupabaseConnectionTest } from '../utils/supabase-connection-test'
+import { AuthDebugPanel } from '../utils/auth-debug-panel'
 
 interface AdminLoginPageProps {
   onLoginSuccess: (userRole: string) => void
@@ -28,7 +29,16 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
           // Extract role directly from session - no additional API call needed!
           const userRole = session.user.user_metadata?.role || 'user'
           console.log('[AdminLogin] Existing session found - Role:', userRole)
-          onLoginSuccess(userRole)
+          
+          // Only trigger success if user has admin/cs role
+          if (userRole === 'admin' || userRole === 'cs') {
+            console.log('[AdminLogin] Valid admin session detected, triggering redirect')
+            onLoginSuccess(userRole)
+          } else {
+            console.log('[AdminLogin] User has session but no admin privileges')
+          }
+        } else {
+          console.log('[AdminLogin] No existing session found')
         }
       } catch (error) {
         console.error('[AdminLogin] Error checking existing session:', error)
@@ -45,10 +55,13 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
     setError('')
 
     try {
+      console.log('[AdminLogin] Starting login process for:', formData.email)
+      
       // Sign in with email and password
       const { data, error: signInError } = await authHelpers.signIn(formData.email, formData.password)
       
       if (signInError) {
+        console.error('[AdminLogin] ✗ Sign-in failed:', signInError.message)
         setError(signInError.message)
         return
       }
@@ -57,13 +70,27 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
         // FIXED: Extract role directly from sign-in response data
         // The user object from signIn already contains user_metadata
         const userRole = data.user.user_metadata?.role || 'user'
-        console.log('[AdminLogin] ✓ Sign-in successful - Role:', userRole)
+        console.log('[AdminLogin] ✓ Sign-in successful')
+        console.log('[AdminLogin] - User ID:', data.user.id)
+        console.log('[AdminLogin] - Email:', data.user.email)
+        console.log('[AdminLogin] - Role:', userRole)
+        console.log('[AdminLogin] - Has session:', !!data.session)
+        console.log('[AdminLogin] - Has access token:', !!data.session?.access_token)
+        
+        // Check if user has admin/cs privileges
+        if (userRole !== 'admin' && userRole !== 'cs') {
+          console.warn('[AdminLogin] ⚠️ User does not have admin/cs role')
+          setError('此帳號沒有管理員權限。Role: ' + userRole)
+          return
+        }
+        
+        console.log('[AdminLogin] ✓ Valid admin/cs role, triggering success callback')
         
         // Call the success handler with role information
         onLoginSuccess(userRole)
       }
     } catch (err) {
-      console.error('Admin login error:', err)
+      console.error('[AdminLogin] ❌ Exception during login:', err)
       setError('登入過程中發生錯誤，請稍後再試')
     } finally {
       setIsLoading(false)
@@ -171,6 +198,9 @@ export function AdminLoginPage({ onLoginSuccess }: AdminLoginPageProps) {
         {/* Supabase Connection Diagnostic Tool */}
         <SupabaseConnectionTest />
       </div>
+      
+      {/* Auth Debug Panel */}
+      <AuthDebugPanel />
     </div>
   )
 }

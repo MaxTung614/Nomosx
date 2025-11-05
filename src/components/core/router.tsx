@@ -10,6 +10,9 @@ import { PageLoadingFallback } from '../utils/loading-fallback'
 // 认证相关页面
 const AdminLoginPage = lazy(() => import('../auth/admin-login-page').then(m => ({ default: m.AdminLoginPage })))
 
+// 测试工具页面
+const AdminLoginTester = lazy(() => import('../utils/admin-login-tester').then(m => ({ default: m.AdminLoginTester })))
+
 // 管理后台页面
 const AdminDashboard = lazy(() => import('../admin/admin-dashboard').then(m => ({ default: m.AdminDashboard })))
 
@@ -49,18 +52,21 @@ export function Router() {
 
   // Handle admin login success
   const handleAdminLoginSuccess = async (role: string) => {
-    console.log('Admin login successful, role:', role)
-    console.log('Auth state - isAuthenticated:', isAuthenticated, 'userRole:', userRole)
-    
-    // Add a small delay to ensure auth state has propagated
-    await new Promise(resolve => setTimeout(resolve, 100))
+    console.log('[Router] Admin login successful, role:', role)
+    console.log('[Router] Current auth state - isAuthenticated:', isAuthenticated, 'userRole:', userRole)
     
     // Check user role and redirect accordingly
     if (role === 'admin' || role === 'cs') {
-      console.log('Redirecting to admin dashboard')
+      console.log('[Router] Valid admin/cs role detected, redirecting to dashboard')
+      
+      // Give AuthProvider time to process the SIGNED_IN event
+      // This ensures the state is synchronized before rendering
+      await new Promise(resolve => setTimeout(resolve, 300))
+      
+      console.log('[Router] Auth state after delay - isAuthenticated:', isAuthenticated, 'userRole:', userRole)
       navigate('/enen')
     } else {
-      console.log('User does not have admin/cs role, redirecting to home')
+      console.log('[Router] User does not have admin/cs role, redirecting to home')
       // Regular user redirected to home
       navigate('/')
     }
@@ -78,30 +84,27 @@ export function Router() {
     if (currentPath === '/enen') {
       console.log('[Router] /enen route - isAuthenticated:', isAuthenticated, 'userRole:', userRole)
       
-      // Check if user is authenticated and has admin/cs role
-      if (!isAuthenticated) {
-        console.log('[Router] Not authenticated, showing admin login')
+      // Allow rendering if either:
+      // 1. User is authenticated with admin/cs role (from AuthProvider)
+      // 2. We're in the process of authentication (session exists but state not updated yet)
+      
+      const hasAdminAccess = isAuthenticated && (userRole === 'admin' || userRole === 'cs')
+      
+      if (hasAdminAccess) {
+        console.log('[Router] Rendering AdminDashboard for role:', userRole)
         return (
           <Suspense fallback={<PageLoadingFallback />}>
-            <AdminLoginPage onLoginSuccess={handleAdminLoginSuccess} />
+            <AdminDashboard onLogout={handleLogout} />
           </Suspense>
         )
       }
-
-      if (userRole !== 'admin' && userRole !== 'cs') {
-        console.log('[Router] User does not have admin/cs role, redirecting to home')
-        navigate('/')
-        return (
-          <Suspense fallback={<PageLoadingFallback />}>
-            <MainApp onNavigateToAdmin={() => navigate('/enen')} />
-          </Suspense>
-        )
-      }
-
-      console.log('[Router] Rendering AdminDashboard for role:', userRole)
+      
+      // If not authenticated or doesn't have admin role, show login page
+      // The AdminLoginPage will check for existing session and redirect if needed
+      console.log('[Router] Showing admin login page')
       return (
         <Suspense fallback={<PageLoadingFallback />}>
-          <AdminDashboard onLogout={handleLogout} />
+          <AdminLoginPage onLoginSuccess={handleAdminLoginSuccess} />
         </Suspense>
       )
     }
@@ -153,6 +156,15 @@ export function Router() {
       return (
         <Suspense fallback={<PageLoadingFallback />}>
           <PayPalCancelHandler />
+        </Suspense>
+      )
+    }
+
+    // Admin login test tool (temporary for debugging)
+    if (currentPath === '/admin-test') {
+      return (
+        <Suspense fallback={<PageLoadingFallback />}>
+          <AdminLoginTester />
         </Suspense>
       )
     }
