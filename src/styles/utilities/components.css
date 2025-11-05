@@ -1,0 +1,339 @@
+/**
+ * ====================================================================================================
+ * 文件名: styles/utilities/components.css
+ * 描述: 可复用的组件样式类 - 使用 @apply 封装常用样式组合
+ * 最后更新: 2025-11-05
+ * ====================================================================================================
+ * 
+ * 这个文件包含常用的组件样式类，减少重复代码
+ * 
+ * 使用示例：
+ * <div className="card-standard">内容</div>
+ * <button className="btn-primary">按钮</button>
+ */
+
+/* ========================================
+   卡片样式 (Card Styles)
+   ======================================== */
+
+/* 标准卡片 */
+.card-standard {
+  @apply rounded-lg p-4;
+  background-color: #12141A;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* 发光卡片 */
+.card-glow {
+  @apply rounded-lg p-4;
+  background-color: #12141A;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  box-shadow: 0 4px 30px rgba(255, 193, 7, 0.2);
+}
+
+/* 玻璃态卡片 */
+.card-glass {
+  @apply rounded-lg p-4;
+  background-color: rgba(18, 20, 26, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 交互卡片（带悬停效果） */
+.card-interactive {
+  @apply rounded-lg p-4 cursor-pointer transition-all duration-300;
+  background-color: #12141A;
+  border: 1px solid #1F2937;
+}
+
+.card-interactive:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  border-color: #FFC107;
+}
+
+/* ========================================
+   按钮样式 (Button Styles)
+   ======================================== */
+
+/* 主要按钮 */
+.btn-primary {
+  @apply px-6 py-3 rounded-lg transition-all duration-300;
+  background-color: #FFC107;
+  color: #0B0C10;
+  font-weight: 600;
+  box-shadow: 0 0 20px rgba(255, 193, 7, 0.3);
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(255, 193, 7, 0.5);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-primary:disabled {
+  background-color: #1F2937;
+  color: #9EA3AE;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* 次要按钮 */
+.btn-secondary {
+  @apply px-6 py-3 rounded-lg border transition-all duration-300;
+  background-color: transparent;
+  border-color: #00E0FF;
+  color: #00E0FF;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(0, 224, 255, 0.1);
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.3);
+}
+
+/* 幽灵按钮 */
+.btn-ghost {
+  @apply px-6 py-3 rounded-lg transition-all duration-300;
+  background-color: transparent;
+  color: #9EA3AE;
+}
+
+.btn-ghost:hover {
+  background-color: rgba(158, 163, 174, 0.1);
+  color: #EAEAEA;
+}
+
+/* ========================================
+   输入框样式 (Input Styles)
+   ======================================== */
+
+/* 标准输入框 */
+.input-standard {
+  @apply w-full px-4 py-3 rounded-lg border-0 transition-all duration-300;
+  background-color: rgba(31, 41, 55, 0.5);
+  color: #EAEAEA;
+  border: 1px solid #1F2937;
+}
+
+.input-standard:focus {
+  outline: none;
+  border-color: #FFC107;
+  box-shadow: 0 0 0 3px rgba(255, 193, 7, 0.1);
+}
+
+.input-standard::placeholder {
+  color: #9EA3AE;
+}
+
+/* 发光输入框 */
+.input-glow {
+  @apply w-full px-4 py-3 rounded-lg transition-all duration-300;
+  background-color: rgba(31, 41, 55, 0.5);
+  color: #EAEAEA;
+  border: 1px solid #1F2937;
+}
+
+.input-glow:focus {
+  outline: none;
+  border-color: #00E0FF;
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.3);
+}
+
+/* ========================================
+   徽章样式 (Badge Styles)
+   ======================================== */
+
+/* 金色徽章 */
+.badge-gold {
+  @apply px-3 py-1 rounded-full text-xs;
+  background-color: #FFC107;
+  color: #0B0C10;
+  font-weight: 600;
+}
+
+/* 蓝色徽章 */
+.badge-blue {
+  @apply px-3 py-1 rounded-full text-xs;
+  background-color: #00E0FF;
+  color: #0B0C10;
+  font-weight: 600;
+}
+
+/* 成功徽章 */
+.badge-success {
+  @apply px-3 py-1 rounded-full text-xs;
+  background-color: #4CAF50;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* 错误徽章 */
+.badge-error {
+  @apply px-3 py-1 rounded-full text-xs;
+  background-color: #FF5252;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* 警告徽章 */
+.badge-warning {
+  @apply px-3 py-1 rounded-full text-xs;
+  background-color: #FF9800;
+  color: #0B0C10;
+  font-weight: 600;
+}
+
+/* 轮廓徽章 */
+.badge-outline {
+  @apply px-3 py-1 rounded-full text-xs border;
+  background-color: transparent;
+  border-color: currentColor;
+}
+
+/* ========================================
+   容器样式 (Container Styles)
+   ======================================== */
+
+/* 页面容器 */
+.page-container {
+  @apply mx-auto px-4;
+  max-width: 1280px;
+}
+
+@media (min-width: 768px) {
+  .page-container {
+    @apply px-6;
+  }
+}
+
+/* 内容区域 */
+.content-section {
+  @apply py-20;
+  background-color: #0B0C10;
+}
+
+/* ========================================
+   分隔线样式 (Divider Styles)
+   ======================================== */
+
+/* 金色分隔线 */
+.divider-gold {
+  @apply h-px w-full;
+  background: linear-gradient(90deg, transparent, #FFC107, transparent);
+}
+
+/* 蓝色分隔线 */
+.divider-blue {
+  @apply h-px w-full;
+  background: linear-gradient(90deg, transparent, #00E0FF, transparent);
+}
+
+/* 标准分隔线 */
+.divider-standard {
+  @apply h-px w-full;
+  background-color: #1F2937;
+}
+
+/* ========================================
+   加载状态样式 (Loading Styles)
+   ======================================== */
+
+/* 加载旋转器 */
+.loading-spinner {
+  @apply w-8 h-8 border-4 rounded-full;
+  border-color: #FFC107;
+  border-top-color: transparent;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 骨架屏 */
+.skeleton {
+  @apply rounded;
+  background: linear-gradient(
+    90deg,
+    rgba(31, 41, 55, 0.5) 0%,
+    rgba(55, 65, 81, 0.5) 50%,
+    rgba(31, 41, 55, 0.5) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ========================================
+   文本样式 (Text Styles)
+   ======================================== */
+
+/* 标题文本 */
+.text-heading {
+  color: #EAEAEA;
+  font-weight: 700;
+}
+
+/* 主体文本 */
+.text-body {
+  color: #EAEAEA;
+  font-weight: 400;
+}
+
+/* 次要文本 */
+.text-muted {
+  color: #9EA3AE;
+}
+
+/* 金色文本 */
+.text-gold {
+  color: #FFC107;
+  font-weight: 600;
+}
+
+/* 蓝色文本 */
+.text-blue {
+  color: #00E0FF;
+  font-weight: 600;
+}
+
+/* 渐变文本 */
+.text-gradient {
+  background: linear-gradient(135deg, #FFC107 0%, #00E0FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 700;
+}
+
+/* ========================================
+   发光效果 (Glow Effects)
+   ======================================== */
+
+/* 金色发光 */
+.glow-gold {
+  box-shadow: 0 0 20px rgba(255, 193, 7, 0.5);
+}
+
+/* 蓝色发光 */
+.glow-blue {
+  box-shadow: 0 0 20px rgba(0, 224, 255, 0.5);
+}
+
+/* 柔和发光 */
+.glow-soft {
+  box-shadow: 0 0 40px rgba(255, 193, 7, 0.2);
+}
