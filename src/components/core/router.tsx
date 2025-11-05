@@ -1,13 +1,27 @@
-import React, { useState, useEffect } from 'react'
-import { AdminLoginPage } from '../auth/admin-login-page'
-import { AdminDashboard } from '../admin/admin-dashboard'
-import { MainApp } from './main-app'
-import { ProductPage } from './product-page'
-import { PaymentPage } from '../payment/payment-page'
-import { PaymentResultPage } from '../payment/payment-result-page'
-import { PayPalReturnHandler } from '../payment/paypal-return-handler'
-import { PayPalCancelHandler } from '../payment/paypal-cancel-handler'
+import React, { useState, useEffect, lazy, Suspense } from 'react'
 import { useAuth } from '../auth/auth-provider'
+import { PageLoadingFallback } from '../utils/loading-fallback'
+
+// ====================================================================================================
+// 代码拆分 - 懒加载所有路由组件
+// ====================================================================================================
+// 这样可以将每个页面打包成独立的 chunk，减少首次加载时间
+
+// 认证相关页面
+const AdminLoginPage = lazy(() => import('../auth/admin-login-page').then(m => ({ default: m.AdminLoginPage })))
+
+// 管理后台页面
+const AdminDashboard = lazy(() => import('../admin/admin-dashboard').then(m => ({ default: m.AdminDashboard })))
+
+// 核心业务页面
+const MainApp = lazy(() => import('./main-app').then(m => ({ default: m.MainApp })))
+const ProductPage = lazy(() => import('./product-page').then(m => ({ default: m.ProductPage })))
+
+// 支付相关页面
+const PaymentPage = lazy(() => import('../payment/payment-page').then(m => ({ default: m.PaymentPage })))
+const PaymentResultPage = lazy(() => import('../payment/payment-result-page').then(m => ({ default: m.PaymentResultPage })))
+const PayPalReturnHandler = lazy(() => import('../payment/paypal-return-handler').then(m => ({ default: m.PayPalReturnHandler })))
+const PayPalCancelHandler = lazy(() => import('../payment/paypal-cancel-handler').then(m => ({ default: m.PayPalCancelHandler })))
 
 export function Router() {
   const [currentPath, setCurrentPath] = useState('')
@@ -52,117 +66,110 @@ export function Router() {
     }
   }
 
-  // Handle admin logout
-  const handleAdminLogout = () => {
-    logout()
+  // Handle logout
+  const handleLogout = async () => {
+    await logout()
     navigate('/')
   }
 
-  // Extract order ID from payment paths
-  const getOrderIdFromPath = (path: string, prefix: string) => {
-    if (path.startsWith(prefix)) {
-      return path.substring(prefix.length)
-    }
-    return null
-  }
-
-  // Route rendering logic
+  // Route matching with Suspense for lazy loading
   const renderRoute = () => {
-    // Check for payment routes with order ID
-    const paymentOrderId = getOrderIdFromPath(currentPath, '/payment/')
-    const resultOrderId = getOrderIdFromPath(currentPath, '/payment-result/')
-    
-    if (paymentOrderId) {
-      // Payment page: /payment/:orderId
+    // Admin routes - Protected
+    if (currentPath === '/admin-login') {
       return (
-        <PaymentPage 
-          orderId={paymentOrderId}
-          onNavigateBack={() => navigate('/products')}
-          onPaymentSuccess={(orderId) => navigate(`/payment-result/${orderId}`)}
-        />
+        <Suspense fallback={<PageLoadingFallback />}>
+          <AdminLoginPage onLoginSuccess={handleAdminLoginSuccess} />
+        </Suspense>
       )
     }
-    
-    if (resultOrderId) {
-      // Payment result page: /payment-result/:orderId
+
+    if (currentPath === '/admin-dashboard') {
+      // Check if user is authenticated and has admin/cs role
+      if (!isAuthenticated) {
+        console.log('Not authenticated, redirecting to admin login')
+        navigate('/admin-login')
+        return (
+          <Suspense fallback={<PageLoadingFallback />}>
+            <AdminLoginPage onLoginSuccess={handleAdminLoginSuccess} />
+          </Suspense>
+        )
+      }
+
+      if (userRole !== 'admin' && userRole !== 'cs') {
+        console.log('User does not have admin/cs role, redirecting to home')
+        navigate('/')
+        return (
+          <Suspense fallback={<PageLoadingFallback />}>
+            <MainApp onNavigateToAdmin={() => navigate('/admin-login')} />
+          </Suspense>
+        )
+      }
+
       return (
-        <PaymentResultPage 
-          orderId={resultOrderId}
-          onNavigateHome={() => navigate('/')}
-          onRetryPayment={() => navigate(`/payment/${resultOrderId}`)}
-        />
+        <Suspense fallback={<PageLoadingFallback />}>
+          <AdminDashboard onLogout={handleLogout} />
+        </Suspense>
       )
     }
-    
-    switch (currentPath) {
-      case '/payment-success':
-        // PayPal return success handler
-        return (
-          <PayPalReturnHandler 
-            onPaymentSuccess={(orderId) => navigate(`/payment-result/${orderId}`)}
-            onPaymentCancel={(orderId) => navigate(`/payment/${orderId}`)}
+
+    // Product page
+    if (currentPath.startsWith('/products/')) {
+      const productId = currentPath.split('/products/')[1]
+      return (
+        <Suspense fallback={<PageLoadingFallback />}>
+          <ProductPage
+            productId={productId}
+            onBack={() => navigate('/')}
           />
-        )
-      
-      case '/payment-cancel':
-        // PayPal cancel handler
-        return (
-          <PayPalCancelHandler 
-            onReturnToPayment={(orderId) => navigate(`/payment/${orderId}`)}
-            onReturnHome={() => navigate('/')}
-          />
-        )
-      case '/enen':
-        // Admin/CS login page - no navigation
-        return (
-          <AdminLoginPage 
-            onLoginSuccess={handleAdminLoginSuccess}
-          />
-        )
-      
-      case '/admin-dashboard':
-        // Admin dashboard - requires admin/cs role
-        if (!isAuthenticated) {
-          // Not authenticated, redirect to admin login
-          navigate('/enen')
-          return null
-        }
-        
-        if (userRole !== 'admin' && userRole !== 'cs') {
-          // Not admin/cs role, redirect to home
-          navigate('/')
-          return null
-        }
-        
-        return (
-          <AdminDashboard 
-            onLogout={handleAdminLogout}
-          />
-        )
-      
-      case '/products':
-        // Product page for customers
-        return (
-          <ProductPage 
-            onNavigateBack={() => navigate('/')}
-            onNavigateToPayment={(orderId) => navigate(`/payment/${orderId}`)}
-          />
-        )
-      
-      default:
-        // Main application (home and other regular pages)
-        return (
-          <MainApp 
-            onNavigateToAdmin={() => navigate('/enen')}
-            onNavigateToProducts={() => navigate('/products')}
-          />
-        )
+        </Suspense>
+      )
     }
+
+    // Payment routes
+    if (currentPath.startsWith('/payment/')) {
+      const orderId = currentPath.split('/payment/')[1]
+      return (
+        <Suspense fallback={<PageLoadingFallback />}>
+          <PaymentPage
+            orderId={orderId}
+            onBack={() => navigate('/')}
+          />
+        </Suspense>
+      )
+    }
+
+    if (currentPath === '/payment-result') {
+      return (
+        <Suspense fallback={<PageLoadingFallback />}>
+          <PaymentResultPage onBackToHome={() => navigate('/')} />
+        </Suspense>
+      )
+    }
+
+    // PayPal callback routes
+    if (currentPath === '/paypal-return') {
+      return (
+        <Suspense fallback={<PageLoadingFallback />}>
+          <PayPalReturnHandler />
+        </Suspense>
+      )
+    }
+
+    if (currentPath === '/paypal-cancel') {
+      return (
+        <Suspense fallback={<PageLoadingFallback />}>
+          <PayPalCancelHandler />
+        </Suspense>
+      )
+    }
+
+    // Default: Home page
+    return (
+      <Suspense fallback={<PageLoadingFallback />}>
+        <MainApp onNavigateToAdmin={() => navigate('/admin-login')} />
+      </Suspense>
+    )
   }
 
-  return (
-    <div className="min-h-screen">
-      {renderRoute()}
-    </div>
-  )
+  return <>{renderRoute()}</>
 }

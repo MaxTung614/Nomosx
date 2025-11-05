@@ -7,8 +7,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Alert, AlertDescription } from '../ui/alert'
-import { authHelpers } from '../../utils/supabase/client'
-import { projectId } from '../../utils/supabase/info'
+import { gamesService } from '../../services'
+import type { HomepageGame } from '../../types'
 import { toast } from 'sonner@2.0.3'
 import { 
   Plus, 
@@ -24,18 +24,6 @@ import {
   Sparkles,
   ImageIcon
 } from 'lucide-react'
-
-interface HomepageGame {
-  id: string
-  name: string
-  coverUrl: string
-  price: string
-  badge: string | null
-  discount: string | null
-  order: number
-  createdAt: string
-  updatedAt: string
-}
 
 interface HomepageGamesManagerProps {
   onDataUpdate?: () => void
@@ -63,25 +51,18 @@ export function HomepageGamesManager({ onDataUpdate }: HomepageGamesManagerProps
   const loadGames = async () => {
     try {
       setLoading(true)
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-04b375d8/games`,
-        { signal: AbortSignal.timeout(15000) }
-      )
+      const { data, error } = await gamesService.getAllGames()
 
-      if (response.ok) {
-        const data = await response.json()
-        setGames(data.games || [])
-        onDataUpdate?.()
-      } else {
-        toast.error('載入首頁游戲失敗')
+      if (error) {
+        toast.error(error)
+        return
       }
+
+      setGames(data?.games || [])
+      onDataUpdate?.()
     } catch (error) {
       console.error('Failed to load homepage games:', error)
-      if (error instanceof Error && error.name === 'TimeoutError') {
-        toast.error('載入超時，請檢查網路連線')
-      } else {
-        toast.error('載入首頁游戲失敗')
-      }
+      toast.error('載入首頁游戲失敗')
     } finally {
       setLoading(false)
     }
@@ -90,42 +71,17 @@ export function HomepageGamesManager({ onDataUpdate }: HomepageGamesManagerProps
   const handleImageUpload = async (file: File): Promise<string> => {
     try {
       setUploadingImage(true)
-      const { access_token, error: sessionError } = await authHelpers.getSession()
-      
-      if (sessionError || !access_token) {
-        toast.error('會話已過期，請重新登入')
-        throw new Error('Authentication required')
+      const { data, error } = await gamesService.uploadCoverImage(file)
+
+      if (error) {
+        toast.error(error)
+        throw new Error(error)
       }
 
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-04b375d8/games/upload-cover`,
-        {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${access_token}`
-          },
-          body: formData,
-          signal: AbortSignal.timeout(30000)
-        }
-      )
-
-      if (response.ok) {
-        const data = await response.json()
-        toast.success('圖片上傳成功！')
-        return data.url
-      } else {
-        const error = await response.json()
-        toast.error(error.error || '圖片上傳失敗')
-        throw new Error(error.error || 'Upload failed')
-      }
+      toast.success('圖片上傳成功！')
+      return data?.url || ''
     } catch (error) {
       console.error('Image upload error:', error)
-      if (error instanceof Error && error.name === 'TimeoutError') {
-        toast.error('圖片上傳超時')
-      }
       throw error
     } finally {
       setUploadingImage(false)
@@ -213,44 +169,21 @@ export function HomepageGamesManager({ onDataUpdate }: HomepageGamesManagerProps
     if (!validateForm()) return
 
     try {
-      const { access_token, error: sessionError } = await authHelpers.getSession()
-      
-      if (sessionError || !access_token) {
-        toast.error('會話已過期，請重新登入')
+      const result = editingGame
+        ? await gamesService.updateGame(editingGame.id, formData)
+        : await gamesService.createGame(formData)
+
+      if (result.error) {
+        toast.error(result.error)
         return
       }
-      
-      const baseUrl = `https://${projectId}.supabase.co/functions/v1/make-server-04b375d8`
-      const endpoint = editingGame 
-        ? `${baseUrl}/games/${editingGame.id}`
-        : `${baseUrl}/games`
-      const method = editingGame ? 'PUT' : 'POST'
 
-      const response = await fetch(endpoint, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${access_token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData),
-        signal: AbortSignal.timeout(10000)
-      })
-
-      if (response.ok) {
-        toast.success(editingGame ? '更新成功' : '新增成功')
-        closeDialog()
-        await loadGames()
-      } else {
-        const error = await response.json()
-        toast.error(error.error || '操作失敗')
-      }
+      toast.success(editingGame ? '更新成功' : '新增成功')
+      closeDialog()
+      await loadGames()
     } catch (error) {
       console.error('Save error:', error)
-      if (error instanceof Error && error.name === 'TimeoutError') {
-        toast.error('請求超時')
-      } else {
-        toast.error('保存時發生錯誤')
-      }
+      toast.error('保存時發生錯誤')
     }
   }
 
@@ -258,38 +191,18 @@ export function HomepageGamesManager({ onDataUpdate }: HomepageGamesManagerProps
     if (!confirm('確定要刪除此首頁游戲嗎？此操作無法撤銷。')) return
 
     try {
-      const { access_token, error: sessionError } = await authHelpers.getSession()
-      
-      if (sessionError || !access_token) {
-        toast.error('會話已過期，請重新登入')
+      const result = await gamesService.deleteGame(id)
+
+      if (result.error) {
+        toast.error(result.error)
         return
       }
-      
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-04b375d8/games/${id}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${access_token}`
-          },
-          signal: AbortSignal.timeout(10000)
-        }
-      )
 
-      if (response.ok) {
-        toast.success('刪除成功')
-        await loadGames()
-      } else {
-        const error = await response.json()
-        toast.error(error.error || '刪除失敗')
-      }
+      toast.success('刪除成功')
+      await loadGames()
     } catch (error) {
       console.error('Delete error:', error)
-      if (error instanceof Error && error.name === 'TimeoutError') {
-        toast.error('請求超時')
-      } else {
-        toast.error('刪除時發生錯誤')
-      }
+      toast.error('刪除時發生錯誤')
     }
   }
 

@@ -1414,7 +1414,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Desktop Tabs - Hidden on Mobile */}
-          <TabsList className="hidden md:grid w-full grid-cols-6 mb-6">
+          <TabsList className="hidden md:grid w-full grid-cols-7 mb-6">
             <TabsTrigger value="orders" className="flex items-center gap-2">
               <ShoppingCart className="h-4 w-4" />
               訂單管理
@@ -1422,6 +1422,10 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             <TabsTrigger value="games" className="flex items-center gap-2">
               <Gamepad2 className="h-4 w-4" />
               遊戲管理
+            </TabsTrigger>
+            <TabsTrigger value="homepage-games" className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              首頁游戲
             </TabsTrigger>
             <TabsTrigger value="denominations" className="flex items-center gap-2">
               <DollarSign className="h-4 w-4" />
@@ -1447,6 +1451,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
             <div className="flex items-center gap-2">
               {activeTab === 'orders' && <><ShoppingCart className="h-4 w-4" /><span>訂單管理</span></>}
               {activeTab === 'games' && <><Gamepad2 className="h-4 w-4" /><span>遊戲管理</span></>}
+              {activeTab === 'homepage-games' && <><Sparkles className="h-4 w-4" /><span>首頁游戲管理</span></>}
               {activeTab === 'denominations' && <><DollarSign className="h-4 w-4" /><span>產品面額管理</span></>}
               {activeTab === 'payments' && <><BarChart3 className="h-4 w-4" /><span>支付管理</span></>}
               {activeTab === 'settings' && <><Settings className="h-4 w-4" /><span>基礎設定管理</span></>}
@@ -2369,6 +2374,11 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Homepage Games Management Tab */}
+          <TabsContent value="homepage-games" className="space-y-4">
+            <HomepageGamesManager />
           </TabsContent>
 
           {/* RLS Test Tab */}

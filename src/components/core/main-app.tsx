@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'motion/react'
 import { Button } from '../ui/button'
 import { Card, CardContent } from '../ui/card'
@@ -9,6 +9,8 @@ import { ProductPage } from './product-page'
 import { useAuth } from '../auth/auth-provider'
 import { SearchBar } from './SearchBar'
 import { ImageWithFallback } from '../figma/ImageWithFallback'
+import { gamesService } from '../../services'
+import type { HomepageGame } from '../../types'
 import { toast } from 'sonner@2.0.3'
 import nomosxLogo from 'figma:asset/c5cb0566ff6ff95e598bf1b4595419d67010d507.png'
 import { 
@@ -58,6 +60,28 @@ export function MainApp({ onNavigateToAdmin }: MainAppProps) {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login')
   const [showProducts, setShowProducts] = useState(false)
+  const [hotGames, setHotGames] = useState<HomepageGame[]>([])
+  const [gamesLoading, setGamesLoading] = useState(true)
+
+  // Load games from API on mount
+  useEffect(() => {
+    loadGames()
+  }, [])
+
+  const loadGames = async () => {
+    try {
+      setGamesLoading(true)
+      const { data, error } = await gamesService.getAllGames()
+
+      if (!error && data?.games) {
+        setHotGames(data.games)
+      }
+    } catch (error) {
+      console.error('Load games error:', error)
+    } finally {
+      setGamesLoading(false)
+    }
+  }
 
   const handleOpenAuthModal = (tab: 'login' | 'register' = 'login') => {
     setAuthModalTab(tab)
@@ -74,57 +98,7 @@ export function MainApp({ onNavigateToAdmin }: MainAppProps) {
     return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2)
   }
 
-  // Hot games data
-  const hotGames = [
-    {
-      id: 1,
-      name: 'Valorant',
-      cover: 'https://images.unsplash.com/photo-1623820919239-0d0ff10797a1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
-      price: '即刻充值',
-      badge: '熱門',
-      discount: null
-    },
-    {
-      id: 2,
-      name: 'Genshin Impact',
-      cover: 'https://images.unsplash.com/photo-1661347999665-579bb8f9402d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
-      price: '即刻充值',
-      badge: '熱門',
-      discount: '-10%'
-    },
-    {
-      id: 3,
-      name: 'League of Legends',
-      cover: 'https://images.unsplash.com/photo-1619017120139-fb150367d4fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
-      price: '即刻充值',
-      badge: '熱門',
-      discount: null
-    },
-    {
-      id: 4,
-      name: 'Mobile Legends',
-      cover: 'https://images.unsplash.com/photo-1640187128454-1d7c462ede26?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
-      price: '即刻充值',
-      badge: '新品',
-      discount: '-15%'
-    },
-    {
-      id: 5,
-      name: 'PUBG Mobile',
-      cover: 'https://images.unsplash.com/photo-1567027757540-7b572280fa22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
-      price: '即刻充值',
-      badge: null,
-      discount: null
-    },
-    {
-      id: 6,
-      name: 'Free Fire',
-      cover: 'https://images.unsplash.com/photo-1672872476232-da16b45c9001?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=600',
-      price: '即刻充值',
-      badge: null,
-      discount: null
-    }
-  ]
+
 
   // Features data
   const features = [
